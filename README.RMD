@@ -1,0 +1,42 @@
+---
+title: "README"
+output: 
+  html_document:
+    keep_md: true
+
+---
+
+```{r setup, include = FALSE}
+library("knitr")
+library("dplyr")
+library("shiny")
+
+```
+
+Prepared for Feb 2015 Philadelphia R User Meetup (R<-Gang).
+
+A collection of dplyr talks/tutorials (reverse chronological order):
+
+```{r, echo = FALSE}
+# Helper function to create link
+LinkGen <- function(x, name) 
+  paste0("<a href=\"", x, "\">[", name, "]</a>")
+
+talks <- read.csv("data/dplyr_talks.csv", stringsAsFactors = FALSE) %>%
+  mutate(Slide = ifelse(Slide == "", "", LinkGen(Slide, "Slide")),
+         Video = ifelse(Video == "", "", LinkGen(Video, "Video")),
+         Data = ifelse(Data == "", "", LinkGen(Data, "Data"))) %>%
+  mutate(Link = paste(Slide, Video, Data)) %>%
+  select(-Slide, -Video, -Data)
+  
+kable(talks, format = "markdown")
+
+
+```
+
+
+
+
+
+
+
