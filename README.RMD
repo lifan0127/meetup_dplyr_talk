@@ -27,7 +27,8 @@ talks <- read.csv("data/dplyr_talks.csv", stringsAsFactors = FALSE) %>%
          Video = ifelse(Video == "", "", LinkGen(Video, "Video")),
          Data = ifelse(Data == "", "", LinkGen(Data, "Data"))) %>%
   mutate(Link = paste(Slide, Video, Data)) %>%
-  select(-Slide, -Video, -Data)
+  select(-Slide, -Video, -Data) %>%
+  arrange(-Date, Meeting, Speaker, Title)
   
 kable(talks, format = "markdown")
 
