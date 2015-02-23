@@ -33,10 +33,7 @@ Temporary Items
 .apdisk
 .Rproj.user
 # R specific
-*.Rproj
 .Rhistory
-*.RData
-*.html
 *.txt
 data/weather/
 *.sqlite
