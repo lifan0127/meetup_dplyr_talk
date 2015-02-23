@@ -9,7 +9,9 @@ output:
 
 ## Data Preparation
 
-Randomly select 10 rows for examination.
+We will use historical weather data of Philadelphia^[http://learn.fi.edu/weather/data2/] in this demo. The script for data parsing and transformation can be found in R/import_weather.data.R. 
+
+Randomly select 10 rows for examination:
 
 ```{r setup, message = FALSE, echo = FALSE}
 # Load necessary R libraries and the dataset. 
@@ -99,6 +101,11 @@ So far the syntax difference from the core R may look trivial. However the dplyr
 * Many core functions were written in C++ and have great speed gain versus standard R (to be discussed later).
 * It can communicate with many data storage backends besides dataframe (to be discussed later).
 
+Note: If the basic operators cannot meet your need, you can also use the do(.) operator to directly access the grouped data.
+
+
+
+
 
 ## Pipe and Chaining
 
@@ -152,18 +159,13 @@ weather %>%
 ```
 
 
-As another example, we can pipe the data into a lm model.
-
-
-
-
 ## Data Backends
 
 #### Working with SQL database
 
 As a trival example, we will convert our weather dataset into a RDB with RSQLite package. 
 
-```{r}
+```{r, echo = FALSE}
 # Create a database using RSQLite package
 con <- dbConnect(SQLite(), "../data/weather.sqlite")
 
@@ -175,7 +177,7 @@ dbDisconnect(con)
 
 ```
 
-Next, we can directly working on this database through dplyr.
+Next, we can directly working on this database through src_sqlite() in dplyr.
 
 ```{r}
 weather.db <- src_sqlite("../data/weather.sqlite") %>%

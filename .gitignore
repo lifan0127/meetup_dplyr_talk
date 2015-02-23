@@ -35,8 +35,8 @@ Temporary Items
 # R specific
 *.Rproj
 .Rhistory
-.RData
+*.RData
 *.html
-*.MD
 *.txt
-data/
+data/weather/
+*.sqlite
