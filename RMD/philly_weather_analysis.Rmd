@@ -1,0 +1,227 @@
+---
+title: "Philadelphia Weather Data Analysis"
+author: "<a href=\"https://www.linkedin.com/in/fanli\">Fan Li</a>"
+date: "February 22, 2015"
+output: 
+  html_document:
+    theme: united
+---
+
+## Data Preparation
+
+Randomly select 10 rows for examination.
+
+```{r setup, message = FALSE, echo = FALSE}
+# Load necessary R libraries and the dataset. 
+library("knitr")
+library("ggplot2")
+library("lubridate")
+library("scales")
+library("RSQLite")
+library("dplyr")
+
+load("../data/weather.RData")  # See R/import_weather_data.R for data preparation
+
+```
+
+
+```{r sample_data, echo = FALSE}
+weather %>%
+  sample_n(10) %>%  # Sample n rows. Also see sample_frac()
+  arrange(Year, Month, Day) %>%  # Sort dataframe by Year, Month and Day
+  kable()  # Create a html table
+
+```
+
+The data files have seven columns^[http://learn.fi.edu/weather/data2/]:
+
+* Columns 1, 2 and 3 contain the month, day, and year.
+* Columns 4 and 5 are the daily high and low temperatures (in oF).
+* Column 6 is the daily precipitation in inches (rain plus melted snow).^[Originally in 1/100 inches. Converted to inches for clarity]
+* Column 7 is the daily snowfall, in inches.^[Originally in 1/10 inches. Converted to inches for clarity]
+
+
+## Basic Operators
+
+#### select(data, col.1, col.2, ...) 
+
+Select/keep only the variables you mention. For example, if we are interested in the daily snowfall, we can create a subset of the data this way:
+
+```{r}
+# This is the same as weather[c("Year", "Month", "Day", "Snow")] but a little cleaner.
+snowfall <- select(weather, Year, Month, Day, Snow)  
+kable(head(snowfall))  # Create a html table
+
+```
+
+#### filter(data, condition.1, condition.2, ...) 
+
+Because snowfall data prior to 1885 is missing, we will remove them from the analysis. We can also limit our analysis to Feburary as well.
+
+```{r}
+# This is the same as subset(snowfall, Year >=1885 & Month == 2)
+snowfall <- filter(snowfall, Year >= 1885, Month == 2)
+kable(head(snowfall))
+
+```
+
+#### arrange(data, col.1, col.2, ...)
+
+Which Feburary day has the most snowfall in the history? We can have a list in reverse chronological order.
+
+```{r}
+snowfall <- arrange(snowfall, -Snow, -Year)
+kable(head(snowfall))
+
+```
+
+
+#### group_by() + summarize()
+
+Now, which Feburary is the most "snowy" month?
+
+```{r}
+feb.snow <- arrange(
+                summarize(
+                    group_by(snowfall, Year),
+                    Snow.Sum = sum(Snow, na.rm = TRUE)
+                ),
+                -Snow.Sum, -Year
+            )
+kable(head(feb.snow))
+
+```
+
+So far the syntax difference from the core R may look trivial. However the dplyr way has several advantages:
+
+* It appears cleaner and will give you more meaningful error message if anything goes wrong.
+* Its standardized, SQL-like operators (verbs) makes data manipulation easier to think.
+* Many core functions were written in C++ and have great speed gain versus standard R (to be discussed later).
+* It can communicate with many data storage backends besides dataframe (to be discussed later).
+
+
+## Pipe and Chaining
+
+#### Pipe operator (%>%)
+
+All above operators (and other operators in dplyr) take a dataframe as the first argument (input), followed by other parameters, and produce a dataframe as output.
+
+The "%>%" operator was designed to "pipes" data or function output into the subsequent function and therefore convert nested structures into cleaner and more logical chain expressions.
+
+```{r eval = FALSE}
+data %>% function()  # equal to function(data)
+
+foo() %>% bar()      # equal to bar(foo())
+
+```
+
+Therefore, the following chain can create the same "snowy" feburary dataset as shown above.
+
+```{r}
+feb.snow2 <- weather %>%
+  select(Year, Month, Day, Snow) %>%                 # Step 1. Select relevant variables
+  filter(Year >= 1885, Month == 2) %>%               # Step 2. Filter by year and month
+  group_by(Year) %>%                                 # Step 3. Group by year
+  summarize(Snow.Sum = sum(Snow, na.rm = TRUE)) %>%  # Step 4. Summarize monthly snowfall
+  arrange(-Snow.Sum, -Year)                          # Step 5. Sort table by monthly snowfall/year
+
+kable(head(feb.snow2))
+
+```
+
+
+#### Chaining
+
+The chain operator also works with almost all other functions which takes a dataframe as the first argument. For example, we may pipe transformed data directly into ggplot to compare daily temperature between 1880 and 2000.
+
+```{r, fig.width = 8, fig.height = 4, fig.align = "center"}
+weather %>%
+  filter(Year %in% c(1880, 2000)) %>%  # Data available from 1874
+  mutate(Date = as.Date(ymd(paste(1234, Month, Day))),
+         Year = as.factor(Year)) %>%
+  select(Year, Date, HighTemp, LowTemp) %>%
+  ggplot() +
+  geom_linerange(aes(x = Date, ymax = HighTemp, ymin = LowTemp, color = Year), alpha = 0.25, na.rm = TRUE, size = 1) +
+  scale_x_date(breaks = "1 month",  labels = date_format("%b")) +
+  scale_y_continuous(name="Temperature (F)") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme_bw() +
+  theme(legend.justification=c(1,1), legend.position=c(1,1))
+
+
+```
+
+
+As another example, we can pipe the data into a lm model.
+
+
+
+
+## Data Backends
+
+#### Working with SQL database
+
+As a trival example, we will convert our weather dataset into a RDB with RSQLite package. 
+
+```{r}
+# Create a database using RSQLite package
+con <- dbConnect(SQLite(), "../data/weather.sqlite")
+
+if(!"weather" %in% dbListTables(con))
+  dbWriteTable(con, "weather", weather)
+
+# Disconnect
+dbDisconnect(con)
+
+```
+
+Next, we can directly working on this database through dplyr.
+
+```{r}
+weather.db <- src_sqlite("../data/weather.sqlite") %>%
+  tbl("weather") %>%
+  select(Year, Month, Day, Snow) %>%                 # Step 1. Select relevant variables
+  filter(Year >= 1885, Month == 2) %>%               # Step 2. Filter by year and month
+  group_by(Year) %>%                                 # Step 3. Group by year
+  summarize(Snow.Sum = sum(Snow)) %>%  # Step 4. Summarize monthly snowfall
+  arrange(-Snow.Sum, -Year)    
+
+# Show result via collect()
+kable(head(collect(weather.db)))
+
+# Show SQL query
+explain(weather.db)
+
+
+```
+
+
+
+
+#### Working with mutiple data sources
+
+As a simple demonstration, we will compare the weather of Philadelphia and Boston in 2010. This is done by firstly merging Boston weather data^[http://www.wunderground.com/history/airport/KBOS/2015/2/23/DailyHistory.html] with our Philadelphia weather data.
+
+`r kable(head(boston))`
+
+```{r}
+weather %>%
+  transmute(Date = ymd(paste(Year, Month, Day)),
+            Philly.High = HighTemp, Philly.Low = LowTemp) %>%
+  inner_join(
+    boston %>%
+      transmute(Date = mdy(Date), Boston.High = HighTemp, Boston.Low = LowTemp),
+    by = "Date"
+  ) %>%
+  head() %>%
+  kable()
+
+```
+
+
+
+
+
+
+
+
