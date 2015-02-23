@@ -1,0 +1,15 @@
+Date,Meeting,Title,Speaker,Slide,Video,Data
+20140630,USER2014,Data manipulation with dplyr,Hadley Wickham,https://www.dropbox.com/sh/i8qnluwmuieicxc/AACsepZJvULCKkbIxK9KP-6Ea/dplyr-tutorial.pdf?dl=0,http://youtu.be/8SGif63VW6E,https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a
+20140701,USER2014,dplyr: a grammar of data manipulation,Hadley Wickham,,http://youtu.be/dWjSYqI7Vog,
+20150114,RStudio Webinar,Data Wrangling with R,Garrett Grolemund,https://dl.dropboxusercontent.com/u/5896466/wrangling-webinar.pdf,http://www.rstudio.com/resources/webinars/,https://github.com/rstudio/webinars/tree/master/2015-01
+20140825,RStudio Webinar,Hands-on dplyr tutorial for faster data manipulation in R,,http://rpubs.com/justmarkham/dplyr-tutorial,http://youtu.be/jWjqLW-u3hc,
+20141126,Budapest BI,Introduction to the dplyr R package,Romain Francois,http://www.slideshare.net/romainfrancois/dplyr-budapest,,
+20141025,ACM DataScience Camp,Data Manipulation Using R,Ram Narasimhan,https://ramnarasimhan.files.wordpress.com/2014/10/data-manipulation-using-r_acm2014.pdf,http://youtu.be/Ix8KtdByhY8,
+20150113,Upstate Data Analytics,,Wallace Campbell,,https://vimeo.com/103872918,https://github.com/campbwa/R-videos
+20141111,LA R users group,Benchmarking dplyr and data.table (with biggish data),Szilard Pafka,https://speakerdeck.com/datasciencela/szilard-pafka-dplyr-plus-basic-benchmark-la-r-meetup-nov-2014,,https://github.com/szilard/benchm-dplyr-dt
+20141202,Sheffield R Users Group,"how to find help online, data manipulation with plyr and dplyr",Mathew Hall,http://www.slideshare.net/Sheffield_R_/dplyr-and-plyr,,
+20141022,,Becoming a data ninja with dplyr,Devin Pastoor,https://speakerdeck.com/dpastoor/becoming-a-data-ninja-with-dplyr,,
+20150121,Berkeley Institute for Data Science,Pipelines for Data Analysis,Hadley Wickham,,http://bids.berkeley.edu/resources/videos/pipelines-data-analysis,
+20150122,,Advanced Data Manipulation,Mike McCann,http://rpubs.com/mccannecology/54011,,
+20140214,Stanford HCI Group,Expressing yourself in R,Hadley Wickham,http://youtu.be/wki0BqlztCo,,http://hci.stanford.edu/courses/cs547/speaker.php?date=2014-02-14
+20141007,Davis R Users' Group,dplyr: Data manipulation in R made easy,Michael A. Levy,http://www.michaellevy.name/blog/dplyr-data-manipulation-in-r-made-easy,http://youtu.be/KCKBmWsRQko,
